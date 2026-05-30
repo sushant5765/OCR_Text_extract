@@ -42,6 +42,7 @@ dependencies:
   image_cropper: ^12.1.0
   image: ^4.8.0
   translator: ^1.0.4+1
+  flutter_tesseract_ocr: ^0.4.30
 
   google_mobile_ads: ^6.0.0
 
@@ -69,12 +70,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
-
   uses-material-design: true
+
+  assets:
+    - assets/tessdata_config.json
+    - assets/tessdata/
 
 flutter_launcher_icons:
   ios: false

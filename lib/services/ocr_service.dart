@@ -1,33 +1,36 @@
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:flutter/services.dart';
 import 'dart:io';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'image_preprocessor.dart';
-import '../utils/text_reconstructor.dart';
 
 class OCRService {
-  static final TextRecognizer textRecognizer = TextRecognizer();
+  static final TextRecognizer _textRecognizer = TextRecognizer();
 
+  /// Extract text from an image using ML Kit with preprocessing
   static Future<String> extractTextFromImage(String imagePath) async {
     try {
+      // Step 1: Preprocess the image
       final processedPath = await ImagePreprocessor.preprocess(imagePath);
+
+      // Step 2: Create input for ML Kit
       final inputImage = InputImage.fromFilePath(processedPath);
-      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
 
-      String extractedText = TextReconstructor.fromRecognizedText(recognizedText);
-      await File(processedPath).delete();
+      // Step 3: Run text recognition
+      final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
 
-      if (extractedText.isEmpty) {
-        return 'No text found in the image.';
+      // Step 4: Clean up temporary file if it's different from original
+      if (processedPath != imagePath) {
+        await File(processedPath).delete();
       }
-      return extractedText;
-    } on PlatformException catch (e) {
-      throw Exception('OCR engine error: ${e.message}');
+
+      // Step 5: Return the extracted text
+      final extractedText = recognizedText.text;
+      return extractedText.isEmpty ? "No text found in the image." : extractedText;
     } catch (e) {
-      throw Exception('Error extracting text: $e');
+      throw Exception("OCR failed: $e");
     }
   }
 
   static void dispose() {
-    textRecognizer.close();
+    _textRecognizer.close();
   }
 }
